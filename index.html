@@ -2,17 +2,19 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#06080f" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#06080f">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
     <title>Daily Water Intake Tracker</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Figtree:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet" />
+        rel="stylesheet">
 
     <style>
         /* ============================================================
@@ -1358,7 +1360,7 @@
             <h3 class="modal-title-el" id="modal-title-el"></h3>
             <div class="modal-body-el" id="modal-body-el"></div>
             <div class="modal-input-group" id="modal-input-group">
-                <input id="modal-inp" autocomplete="off" />
+                <input id="modal-inp" autocomplete="off">
                 <p class="modal-inp-err" id="modal-inp-err" role="alert" aria-live="assertive"></p>
             </div>
             <div class="modal-actions" id="modal-actions"></div>
@@ -1373,7 +1375,7 @@
         <!-- DATE SECTION -->
         <div class="date-section">
             <label for="dateInput">📅 Select Date 📅</label>
-            <input type="date" id="dateInput" aria-describedby="date-help" />
+            <input type="date" id="dateInput" aria-describedby="date-help">
             <div id="date-help" class="sr-only">Select a date to view or edit water intake data. Future dates are not
                 allowed.</div>
         </div>
@@ -1403,7 +1405,7 @@
                     <div class="toggle-wrap">
                         <span class="toggle-label-text">Enable</span>
                         <label class="toggle">
-                            <input type="checkbox" id="manualGoalCheckbox" aria-describedby="goal-checkbox-help" />
+                            <input type="checkbox" id="manualGoalCheckbox" aria-describedby="goal-checkbox-help">
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
@@ -1415,11 +1417,11 @@
                     <div class="unit-selector" role="radiogroup" aria-labelledby="goal-unit-label">
                         <div id="goal-unit-label" class="sr-only">Select unit</div>
                         <div class="unit-opt">
-                            <input type="radio" id="goalUnitMl" name="goalUnit" value="ml" checked />
+                            <input type="radio" id="goalUnitMl" name="goalUnit" value="ml" checked>
                             <label for="goalUnitMl">Milliliters (ml)</label>
                         </div>
                         <div class="unit-opt">
-                            <input type="radio" id="goalUnitL" name="goalUnit" value="l" />
+                            <input type="radio" id="goalUnitL" name="goalUnit" value="l">
                             <label for="goalUnitL">Liters (L)</label>
                         </div>
                     </div>
@@ -1427,7 +1429,7 @@
                     <div class="field">
                         <label for="goalInput">Goal Amount</label>
                         <input type="number" id="goalInput" placeholder="Enter goal amount" min="1" step="0.1"
-                            aria-describedby="goal-input-help" />
+                            aria-describedby="goal-input-help">
                         <div id="goal-input-help" class="sr-only">Enter your daily water intake goal. Minimum 100ml,
                             maximum 10000ml.</div>
                     </div>
@@ -1440,8 +1442,7 @@
             <!-- INTAKE INPUT -->
             <div class="field" style="margin-top:4px;">
                 <label for="waterInput">Amount (ml)</label>
-                <input type="number" id="waterInput" placeholder="e.g. 325" min="1"
-                    aria-describedby="water-input-help" />
+                <input type="number" id="waterInput" placeholder="e.g. 325" min="1" aria-describedby="water-input-help">
                 <div id="water-input-help" class="sr-only">Enter the amount of water you drank in milliliters</div>
             </div>
             <div class="btn-row">
@@ -1497,7 +1498,7 @@
             <div class="field">
                 <label for="peeQuantityInput">Pee Quantity (ml) — Optional</label>
                 <input type="number" id="peeQuantityInput" placeholder="e.g. 300 (optional)" min="1"
-                    aria-describedby="pee-input-help" />
+                    aria-describedby="pee-input-help">
                 <div id="pee-input-help" class="sr-only">Optionally enter the quantity of urine in milliliters</div>
             </div>
             <div class="btn-row">
