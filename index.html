@@ -1,0 +1,2649 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#06080f" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Daily Water Intake Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Figtree:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+
+    <style>
+        /* ============================================================
+           CSS VARIABLES — Aquatic Dark Luxury palette
+        ============================================================ */
+        :root {
+            --bg-root: #06080f;
+            --bg-deep: #0b1120;
+            --bg-card: rgba(11, 17, 32, 0.82);
+            --bg-glass: rgba(255, 255, 255, 0.035);
+            --bg-input: rgba(255, 255, 255, 0.05);
+
+            --cyan: #00d4ff;
+            --cyan-dim: rgba(0, 212, 255, 0.18);
+            --teal: #00ffcc;
+            --teal-dim: rgba(0, 255, 204, 0.15);
+            --violet: #818cf8;
+            --violet-dim: rgba(129, 140, 248, 0.18);
+            --amber: #fbbf24;
+            --amber-dim: rgba(251, 191, 36, 0.15);
+            --rose: #fb7185;
+            --rose-dim: rgba(251, 113, 133, 0.15);
+            --emerald: #34d399;
+            --emerald-dim: rgba(52, 211, 153, 0.15);
+
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #4b6070;
+
+            --border: rgba(0, 212, 255, 0.12);
+            --border-hover: rgba(0, 212, 255, 0.35);
+
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+
+            --glow-cyan: 0 0 20px rgba(0, 212, 255, 0.25), 0 0 60px rgba(0, 212, 255, 0.08);
+            --glow-teal: 0 0 20px rgba(0, 255, 204, 0.25), 0 0 60px rgba(0, 255, 204, 0.08);
+            --glow-violet: 0 0 20px rgba(129, 140, 248, 0.25);
+            --glow-amber: 0 0 20px rgba(251, 191, 36, 0.25);
+
+            --font-display: 'Syne', sans-serif;
+            --font-body: 'Figtree', sans-serif;
+
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ============================================================
+           RESET & BASE
+        ============================================================ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-root);
+            min-height: 100vh;
+            min-height: 100dvh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 10%, rgba(0, 212, 255, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 80% 80%, rgba(0, 255, 204, 0.05) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 60% 30%, rgba(129, 140, 248, 0.04) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(circle, rgba(0, 212, 255, 0.08) 1px, transparent 1px);
+            background-size: 32px 32px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-deep);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--cyan-dim);
+            border-radius: 99px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--cyan);
+        }
+
+        /* ============================================================
+           LAYOUT
+        ============================================================ */
+        #app {
+            position: relative;
+            z-index: 1;
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 24px 20px 48px;
+            padding-bottom: max(48px, env(safe-area-inset-bottom, 48px));
+            animation: fadeUp 0.6s ease both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .glass {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px) saturate(160%);
+            -webkit-backdrop-filter: blur(16px) saturate(160%);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+        }
+
+        /* ============================================================
+           DATE SECTION
+        ============================================================ */
+        .date-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 18px 20px;
+            margin-bottom: 28px;
+            border: 1px solid rgba(129, 140, 248, 0.25);
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, rgba(129, 140, 248, 0.08) 0%, rgba(0, 212, 255, 0.05) 100%);
+            backdrop-filter: blur(12px);
+        }
+
+        .date-section label {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--violet);
+        }
+
+        #dateInput {
+            width: auto;
+            padding: 10px 18px;
+            border: 1px solid rgba(129, 140, 248, 0.3);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            background: rgba(129, 140, 248, 0.08);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 0;
+        }
+
+        #dateInput:focus {
+            outline: none;
+            border-color: var(--violet);
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.15), var(--glow-violet);
+        }
+
+        #dateInput::-webkit-calendar-picker-indicator {
+            filter: invert(0.7) sepia(1) hue-rotate(200deg);
+            cursor: pointer;
+        }
+
+        /* ============================================================
+           HERO HEADER
+        ============================================================ */
+        .hero {
+            text-align: center;
+            margin-bottom: 28px;
+            animation: fadeUp 0.6s 0.1s ease both;
+        }
+
+        .hero-icon {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 0 20px var(--cyan));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--cyan) 0%, var(--teal) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            letter-spacing: 0.04em;
+        }
+
+        /* ============================================================
+           SECTION CARDS
+        ============================================================ */
+        section {
+            margin-bottom: 20px;
+            padding: 22px 20px;
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .section-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .section-icon.cyan {
+            background: var(--cyan-dim);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .section-icon.teal {
+            background: var(--teal-dim);
+            box-shadow: var(--glow-teal);
+        }
+
+        .section-icon.amber {
+            background: var(--amber-dim);
+            box-shadow: var(--glow-amber);
+        }
+
+        .section-icon.rose {
+            background: var(--rose-dim);
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        /* ============================================================
+           STAT CHIPS
+        ============================================================ */
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin: 16px 0;
+        }
+
+        .stat-chip {
+            border-radius: var(--radius-md);
+            padding: 12px 10px;
+            text-align: center;
+            border: 1px solid;
+            transition: var(--transition);
+        }
+
+        .stat-chip:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-chip.intake {
+            background: var(--teal-dim);
+            border-color: rgba(0, 255, 204, 0.25);
+        }
+
+        .stat-chip.goal {
+            background: var(--cyan-dim);
+            border-color: rgba(0, 212, 255, 0.25);
+        }
+
+        .stat-chip.remaining {
+            background: var(--rose-dim);
+            border-color: rgba(251, 113, 133, 0.25);
+        }
+
+        .stat-label {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .stat-chip.intake .stat-label {
+            color: var(--teal);
+        }
+
+        .stat-chip.goal .stat-label {
+            color: var(--cyan);
+        }
+
+        .stat-chip.remaining .stat-label {
+            color: var(--rose);
+        }
+
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            font-weight: 800;
+            line-height: 1;
+            color: var(--text-primary);
+        }
+
+        .stat-unit {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* ============================================================
+           PROGRESS BAR
+        ============================================================ */
+        .progress-section {
+            margin: 16px 0;
+        }
+
+        .progress-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .progress-meta-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        #progress-description {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--cyan);
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 99px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--cyan) 0%, var(--teal) 100%);
+            border-radius: 99px;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            box-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+            animation: shimmer 2.5s ease infinite;
+        }
+
+        @keyframes shimmer {
+            from {
+                transform: translateX(-100%);
+            }
+
+            to {
+                transform: translateX(200%);
+            }
+        }
+
+        .progress-bar.complete {
+            background: linear-gradient(90deg, var(--violet) 0%, var(--teal) 100%);
+            box-shadow: 0 0 16px rgba(129, 140, 248, 0.6);
+        }
+
+        /* ============================================================
+           GOAL SETTING
+        ============================================================ */
+        .goal-section {
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.06) 0%, rgba(0, 212, 255, 0.04) 100%);
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .goal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            cursor: pointer;
+        }
+
+        .goal-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .goal-header-left span {
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--amber);
+        }
+
+        .toggle-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-label-text {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .toggle {
+            position: relative;
+            width: 40px;
+            height: 22px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 99px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 2px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--text-secondary);
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .toggle input:checked+.toggle-slider {
+            background: rgba(251, 191, 36, 0.25);
+            border-color: var(--amber);
+        }
+
+        .toggle input:checked+.toggle-slider::before {
+            transform: translateX(18px) translateY(-50%);
+            background: var(--amber);
+            box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+        }
+
+        .goal-body {
+            display: none;
+            padding: 0 16px 16px;
+        }
+
+        .goal-body.show {
+            display: block;
+        }
+
+        .unit-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .unit-opt {
+            flex: 1;
+            position: relative;
+        }
+
+        .unit-opt input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .unit-opt label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            user-select: none;
+            margin-bottom: 0;
+            width: 100%;
+        }
+
+        .unit-opt input[type="radio"]:checked+label {
+            background: rgba(251, 191, 36, 0.15);
+            border-color: var(--amber);
+            color: var(--amber);
+            box-shadow: var(--glow-amber);
+        }
+
+        .unit-opt label:hover {
+            border-color: var(--amber);
+            color: var(--text-primary);
+        }
+
+        /* ============================================================
+           INPUTS & LABELS
+        ============================================================ */
+        .field {
+            margin-bottom: 12px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        input[type="number"],
+        input[type="date"],
+        input[type="text"] {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            color: var(--text-primary);
+            background: var(--bg-input);
+            transition: var(--transition);
+            appearance: none;
+            -moz-appearance: textfield;
+            margin-bottom: 0;
+        }
+
+        input[type="number"]:focus,
+        input[type="date"]:focus {
+            outline: none;
+            border-color: var(--cyan);
+            background: rgba(0, 212, 255, 0.05);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.12), var(--glow-cyan);
+        }
+
+        input::placeholder {
+            color: var(--text-muted);
+        }
+
+        input::-webkit-inner-spin-button,
+        input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* ============================================================
+           BUTTONS
+        ============================================================ */
+        .btn-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 18px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: 0.875rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        button:focus-visible {
+            outline: 2px solid var(--cyan);
+            outline-offset: 3px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--cyan) 0%, #00b4d8 100%);
+            color: #001a22;
+            box-shadow: 0 2px 12px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .btn-teal {
+            background: linear-gradient(135deg, var(--teal) 0%, #00c9a7 100%);
+            color: #001a14;
+            box-shadow: 0 2px 12px rgba(0, 255, 204, 0.25);
+        }
+
+        .btn-teal:hover {
+            box-shadow: 0 4px 20px rgba(0, 255, 204, 0.45);
+            transform: translateY(-1px);
+        }
+
+        .btn-amber {
+            background: linear-gradient(135deg, var(--amber) 0%, #f59e0b 100%);
+            color: #1a1200;
+            box-shadow: 0 2px 12px rgba(251, 191, 36, 0.25);
+        }
+
+        .btn-amber:hover {
+            box-shadow: 0 4px 20px rgba(251, 191, 36, 0.45);
+            transform: translateY(-1px);
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #fff;
+            box-shadow: 0 2px 12px rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.45);
+            transform: translateY(-1px);
+        }
+
+        .btn-sm {
+            padding: 5px 12px;
+            font-size: 0.78rem;
+            border-radius: 6px;
+        }
+
+        .btn-edit {
+            background: rgba(129, 140, 248, 0.15);
+            color: var(--violet);
+            border: 1px solid rgba(129, 140, 248, 0.25);
+        }
+
+        .btn-edit:hover {
+            background: rgba(129, 140, 248, 0.28);
+        }
+
+        .btn-del {
+            background: rgba(251, 113, 133, 0.12);
+            color: var(--rose);
+            border: 1px solid rgba(251, 113, 133, 0.25);
+        }
+
+        .btn-del:hover {
+            background: rgba(251, 113, 133, 0.25);
+        }
+
+        /* ============================================================
+           PEE DISPLAY
+        ============================================================ */
+        #pee-display {
+            margin-top: 12px;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            background: var(--teal-dim);
+            border: 1px solid rgba(0, 255, 204, 0.2);
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--teal);
+            text-align: center;
+        }
+
+        /* ============================================================
+           HISTORY LISTS
+        ============================================================ */
+        .history-section {
+            border: 1px solid rgba(129, 140, 248, 0.2);
+            background: linear-gradient(135deg, rgba(129, 140, 248, 0.05) 0%, rgba(0, 212, 255, 0.03) 100%);
+        }
+
+        .history-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+
+        .history-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background: var(--cyan-dim);
+            border-radius: 99px;
+        }
+
+        .history-list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-glass);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+            animation: fadeIn 0.3s ease both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .history-list li:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--border-hover);
+            transform: translateX(2px);
+        }
+
+        .history-text {
+            flex: 1;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .history-text strong {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        /* Separator dot in history entries */
+        .history-sep {
+            color: var(--text-muted);
+            margin: 0 4px;
+            user-select: none;
+        }
+
+        .history-buttons {
+            display: flex;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* ============================================================
+           DANGER ZONE
+        ============================================================ */
+        .danger-zone {
+            border-color: rgba(239, 68, 68, 0.2);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.06) 0%, rgba(220, 38, 38, 0.04) 100%);
+            text-align: center;
+        }
+
+        .danger-zone p {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+        }
+
+        /* ============================================================
+           TOAST SYSTEM
+        ============================================================ */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border-radius: var(--radius-md);
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            min-width: 260px;
+            max-width: 380px;
+            pointer-events: auto;
+            opacity: 0;
+            transform: translateY(-10px) scale(0.96);
+            transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .toast.fade-out {
+            opacity: 0;
+            transform: translateY(-10px) scale(0.96);
+        }
+
+        .toast-success {
+            border-left: 3px solid var(--teal);
+        }
+
+        .toast-error {
+            border-left: 3px solid var(--rose);
+        }
+
+        .toast-warning {
+            border-left: 3px solid var(--amber);
+        }
+
+        .toast-info {
+            border-left: 3px solid var(--cyan);
+        }
+
+        .toast-icon {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .toast-message {
+            flex: 1;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .toast-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+            width: auto;
+            height: auto;
+            box-shadow: none;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .toast-close:hover {
+            color: var(--text-primary);
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ============================================================
+           MODAL SYSTEM
+        ============================================================ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-dialog {
+            background: var(--bg-deep);
+            border: 1px solid var(--border-hover);
+            border-radius: var(--radius-xl);
+            padding: 28px 24px 24px;
+            max-width: 400px;
+            width: 100%;
+            transform: scale(0.9) translateY(18px);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(0, 212, 255, 0.06);
+        }
+
+        .modal-overlay.active .modal-dialog {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-icon-el {
+            font-size: 2.2rem;
+            text-align: center;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .modal-title-el {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .modal-body-el {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-align: center;
+            line-height: 1.65;
+            margin-bottom: 20px;
+            white-space: pre-line;
+            word-break: break-word;
+        }
+
+        .modal-input-group {
+            margin-bottom: 14px;
+        }
+
+        .modal-input-group input {
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .modal-input-group input:focus {
+            outline: none;
+            border-color: var(--cyan);
+            background: rgba(0, 212, 255, 0.05);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.12), var(--glow-cyan);
+        }
+
+        .modal-input-group input.inp-error {
+            border-color: var(--rose) !important;
+            box-shadow: 0 0 0 3px rgba(251, 113, 133, 0.15) !important;
+        }
+
+        .modal-inp-err {
+            font-size: 0.78rem;
+            color: var(--rose);
+            margin-top: 6px;
+            min-height: 1.1em;
+            text-align: left;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-actions button {
+            flex: 1;
+        }
+
+        /* Shake animation for invalid input */
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            15% {
+                transform: translateX(-6px);
+            }
+
+            30% {
+                transform: translateX(6px);
+            }
+
+            45% {
+                transform: translateX(-5px);
+            }
+
+            60% {
+                transform: translateX(5px);
+            }
+
+            75% {
+                transform: translateX(-3px);
+            }
+
+            90% {
+                transform: translateX(3px);
+            }
+        }
+
+        .shake {
+            animation: shake 0.42s ease;
+        }
+
+        /* ============================================================
+           ACCESSIBILITY
+        ============================================================ */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* ============================================================
+           RESPONSIVE
+        ============================================================ */
+        @media (max-width: 600px) {
+            :root {
+                --radius-lg: 16px;
+                --radius-xl: 20px;
+            }
+
+            #app {
+                padding: 12px 10px 48px;
+                width: 100%;
+                overflow-x: hidden;
+            }
+
+            .date-section {
+                padding: 14px 12px;
+                margin-bottom: 18px;
+            }
+
+            #dateInput {
+                padding: 9px 12px;
+                width: 100%;
+            }
+
+            section {
+                padding: 16px 14px;
+                margin-bottom: 14px;
+            }
+
+            .section-icon {
+                width: 30px;
+                height: 30px;
+            }
+
+            .stats-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .stats-row .stat-chip.remaining {
+                grid-column: 1 / -1;
+            }
+
+            .stat-chip {
+                padding: 10px 8px;
+            }
+
+            .progress-bar-container {
+                height: 10px;
+            }
+
+            .goal-header {
+                padding: 12px 12px;
+            }
+
+            .goal-body {
+                padding: 0 12px 14px;
+            }
+
+            .unit-selector {
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .unit-opt label {
+                padding: 9px 12px;
+            }
+
+            input[type="number"],
+            input[type="date"] {
+                padding: 10px 12px;
+            }
+
+            .btn-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .btn-row button {
+                width: 100%;
+                justify-content: center;
+                padding: 12px 16px;
+            }
+
+            #pee-display {
+                padding: 10px 12px;
+            }
+
+            .history-list {
+                max-height: 240px;
+                gap: 6px;
+            }
+
+            .history-list li {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                padding: 10px 12px;
+            }
+
+            .history-buttons {
+                align-self: flex-end;
+                gap: 6px;
+            }
+
+            .btn-sm {
+                padding: 6px 12px;
+            }
+
+            .danger-zone {
+                padding: 16px 14px;
+            }
+
+            #deleteAllDataButton {
+                width: 100%;
+                padding: 12px;
+                font-size: 0.9rem;
+            }
+
+            .toast-container {
+                top: 12px;
+                width: 90vw;
+                left: 5vw;
+                transform: none;
+            }
+
+            .toast {
+                min-width: unset;
+                width: 100%;
+                max-width: 100%;
+                border-radius: var(--radius-sm);
+            }
+
+            .toast-message {
+                font-size: 0.82rem;
+            }
+
+            /* Modal mobile */
+            .modal-dialog {
+                padding: 22px 18px 20px;
+            }
+
+            .modal-actions {
+                flex-direction: column-reverse;
+            }
+
+            .modal-actions button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 380px) {
+            #app {
+                padding: 10px 8px 40px;
+            }
+
+            section {
+                padding: 14px 10px;
+            }
+
+            .stats-row {
+                gap: 6px;
+            }
+        }
+
+        @media (pointer: coarse) {
+            button {
+                min-height: 44px;
+            }
+
+            .btn-sm {
+                min-height: 36px;
+            }
+
+            input[type="number"],
+            input[type="date"] {
+                min-height: 44px;
+            }
+
+            .toggle {
+                width: 46px;
+                height: 26px;
+            }
+
+            .toggle-slider::before {
+                width: 18px;
+                height: 18px;
+            }
+
+            .toggle input:checked+.toggle-slider::before {
+                transform: translateX(20px) translateY(-50%);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Custom Modal (replaces native confirm/prompt) -->
+    <!--
+        NOTE: aria-hidden is NOT set here as a static attribute.
+        The modal manager controls aria-hidden + inert dynamically,
+        always moving focus OUT of the dialog before hiding it, which
+        prevents the "aria-hidden on focused element" console warning.
+    -->
+    <div class="modal-overlay" id="customModalOverlay">
+        <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title-el">
+            <span class="modal-icon-el" id="modal-icon-el" aria-hidden="true"></span>
+            <h3 class="modal-title-el" id="modal-title-el"></h3>
+            <div class="modal-body-el" id="modal-body-el"></div>
+            <div class="modal-input-group" id="modal-input-group">
+                <input id="modal-inp" autocomplete="off" />
+                <p class="modal-inp-err" id="modal-inp-err" role="alert" aria-live="assertive"></p>
+            </div>
+            <div class="modal-actions" id="modal-actions"></div>
+        </div>
+    </div>
+
+    <div id="app">
+        <!-- ARIA Live Regions -->
+        <div id="announcements" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+        <div id="alerts" aria-live="assertive" aria-atomic="true" class="sr-only"></div>
+
+        <!-- DATE SECTION -->
+        <div class="date-section">
+            <label for="dateInput">📅 Select Date 📅</label>
+            <input type="date" id="dateInput" aria-describedby="date-help" />
+            <div id="date-help" class="sr-only">Select a date to view or edit water intake data. Future dates are not
+                allowed.</div>
+        </div>
+
+        <!-- HERO -->
+        <div class="hero">
+            <span class="hero-icon">💧</span>
+            <h1>Daily Water Intake Tracker</h1>
+            <p>Stay hydrated — log every drop</p>
+        </div>
+
+        <!-- WATER INTAKE SECTION -->
+        <section class="glass" role="region" aria-labelledby="water-section-title" style="animation-delay:0.1s">
+            <div class="section-header">
+                <div class="section-icon cyan">💧</div>
+                <h2 class="section-title" id="water-section-title">Water Intake</h2>
+                <div class="section-icon cyan">💧</div>
+            </div>
+
+            <!-- GOAL SETTING -->
+            <div class="goal-section" role="region" aria-labelledby="goal-section-title">
+                <div class="goal-header">
+                    <div class="goal-header-left">
+                        <span class="section-icon amber" style="width:28px;height:28px;font-size:0.9rem;">🎯</span>
+                        <span id="goal-section-title">Custom Goal</span>
+                    </div>
+                    <div class="toggle-wrap">
+                        <span class="toggle-label-text">Enable</span>
+                        <label class="toggle">
+                            <input type="checkbox" id="manualGoalCheckbox" aria-describedby="goal-checkbox-help" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div id="goal-checkbox-help" class="sr-only">Check to set a custom daily water intake goal instead of
+                    the default 4000ml</div>
+
+                <div class="goal-body" id="goalInputContainer" aria-expanded="false">
+                    <div class="unit-selector" role="radiogroup" aria-labelledby="goal-unit-label">
+                        <div id="goal-unit-label" class="sr-only">Select unit</div>
+                        <div class="unit-opt">
+                            <input type="radio" id="goalUnitMl" name="goalUnit" value="ml" checked />
+                            <label for="goalUnitMl">Milliliters (ml)</label>
+                        </div>
+                        <div class="unit-opt">
+                            <input type="radio" id="goalUnitL" name="goalUnit" value="l" />
+                            <label for="goalUnitL">Liters (L)</label>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="goalInput">Goal Amount</label>
+                        <input type="number" id="goalInput" placeholder="Enter goal amount" min="1" step="0.1"
+                            aria-describedby="goal-input-help" />
+                        <div id="goal-input-help" class="sr-only">Enter your daily water intake goal. Minimum 100ml,
+                            maximum 10000ml.</div>
+                    </div>
+                    <div class="btn-row">
+                        <button class="btn-amber" onclick="setCustomGoal()">🎯 Set Goal</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTAKE INPUT -->
+            <div class="field" style="margin-top:4px;">
+                <label for="waterInput">Amount (ml)</label>
+                <input type="number" id="waterInput" placeholder="e.g. 325" min="1"
+                    aria-describedby="water-input-help" />
+                <div id="water-input-help" class="sr-only">Enter the amount of water you drank in milliliters</div>
+            </div>
+            <div class="btn-row">
+                <button class="btn-primary" onclick="addWater()">+ Add Water</button>
+                <button class="btn-ghost" onclick="resetData()">↺ Reset Water</button>
+            </div>
+
+            <!-- PROGRESS -->
+            <div class="progress-section" role="region" aria-labelledby="progress-title" style="margin-top:20px;">
+                <div class="progress-meta">
+                    <span id="progress-title" class="progress-meta-label">Daily Progress</span>
+                    <span id="progress-description" aria-live="polite">0% Complete</span>
+                </div>
+                <div class="progress-bar-container" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                    aria-valuenow="0" aria-describedby="progress-description">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+            </div>
+
+            <!-- STAT CHIPS -->
+            <div class="stats-row" aria-live="polite">
+                <div class="stat-chip intake">
+                    <div class="stat-label">Intake</div>
+                    <div class="stat-value" id="intake-val">0</div>
+                    <div class="stat-unit">ml</div>
+                </div>
+                <div class="stat-chip goal">
+                    <div class="stat-label">Goal</div>
+                    <div class="stat-value" id="goal-val">4000</div>
+                    <div class="stat-unit">ml</div>
+                </div>
+                <div class="stat-chip remaining">
+                    <div class="stat-label">Remaining</div>
+                    <div class="stat-value" id="remaining-val">4000</div>
+                    <div class="stat-unit">ml</div>
+                </div>
+            </div>
+
+            <!-- Hidden aria-friendly live regions for screen readers -->
+            <div id="intake-display" aria-live="polite" class="sr-only">Total Water Intake: 0 ml</div>
+            <div id="goal-display" aria-live="polite" class="sr-only">Goal: 4000 ml (4 Liters)</div>
+            <div id="remaining-display" aria-live="polite" class="sr-only">Remaining: 4000 ml</div>
+        </section>
+
+        <!-- PEE SECTION -->
+        <section class="glass" role="region" aria-labelledby="pee-section-title" style="animation-delay:0.15s">
+            <div class="section-header">
+                <div class="section-icon teal">🚽</div>
+                <h3 class="section-title" id="pee-section-title">Pee Tracker</h3>
+                <div class="section-icon teal">🚽</div>
+            </div>
+
+            <div class="field">
+                <label for="peeQuantityInput">Pee Quantity (ml) — Optional</label>
+                <input type="number" id="peeQuantityInput" placeholder="e.g. 300 (optional)" min="1"
+                    aria-describedby="pee-input-help" />
+                <div id="pee-input-help" class="sr-only">Optionally enter the quantity of urine in milliliters</div>
+            </div>
+            <div class="btn-row">
+                <button class="btn-teal" onclick="addPeeCount()">+ Add Pee Count</button>
+                <button class="btn-ghost" onclick="resetPeeCount()">↺ Reset</button>
+            </div>
+            <div id="pee-display" aria-live="polite">Total Pee Count: 0 times</div>
+        </section>
+
+        <!-- WATER HISTORY -->
+        <section class="glass history-section" role="region" aria-labelledby="history-title"
+            style="animation-delay:0.2s">
+            <div class="section-header">
+                <div class="section-icon cyan">📊</div>
+                <h2 class="section-title" id="history-title">Water Intake History</h2>
+                <div class="section-icon cyan">📊</div>
+            </div>
+            <ol id="history-list" class="history-list" aria-live="polite" aria-label="List of water intake entries">
+                <div class="empty-state">No entries yet for this date.</div>
+            </ol>
+        </section>
+
+        <!-- PEE HISTORY -->
+        <section class="glass history-section" role="region" aria-labelledby="pee-history-title"
+            style="animation-delay:0.25s">
+            <div class="section-header">
+                <div class="section-icon teal">📋</div>
+                <h2 class="section-title" id="pee-history-title">Pee History</h2>
+                <div class="section-icon teal">📋</div>
+            </div>
+            <ol id="pee-history-list" class="history-list" aria-live="polite" aria-label="List of pee count entries">
+                <div class="empty-state">No entries yet for this date.</div>
+            </ol>
+        </section>
+
+        <!-- DANGER ZONE -->
+        <section class="glass danger-zone" role="region" aria-labelledby="danger-zone-title"
+            style="animation-delay:0.3s">
+            <div class="section-header" style="justify-content:center;margin-bottom:8px;">
+                <div class="section-icon rose">⚠️</div>
+                <h2 class="section-title" id="danger-zone-title" style="color:var(--rose);">Danger Zone</h2>
+                <div class="section-icon rose">⚠️</div>
+            </div>
+            <p>Permanently deletes ALL data from ALL dates.</p>
+            <button class="btn-danger" id="deleteAllDataButton" onclick="deleteAllData()"
+                aria-describedby="delete-all-help">
+                🗑️ Delete All Data
+            </button>
+            <div id="delete-all-help" class="sr-only">Warning: This will permanently delete all your water intake and
+                pee count data. This action cannot be undone.</div>
+        </section>
+    </div>
+
+    <script>
+        /* ============================================================
+           STORAGE ABSTRACTION
+        ============================================================ */
+        class DataStorage {
+            constructor() {
+                this.isIndexedDBSupported = 'indexedDB' in window;
+                this.dbName = 'WaterTrackerDB';
+                this.dbVersion = 1;
+                this.db = null;
+            }
+
+            async initIndexedDB() {
+                if (!this.isIndexedDBSupported) return false;
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(this.dbName, this.dbVersion);
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => { this.db = request.result; resolve(true); };
+                    request.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains('waterData'))
+                            db.createObjectStore('waterData', { keyPath: 'id' });
+                        if (!db.objectStoreNames.contains('peeData'))
+                            db.createObjectStore('peeData', { keyPath: 'id' });
+                        if (!db.objectStoreNames.contains('settings'))
+                            db.createObjectStore('settings', { keyPath: 'key' });
+                    };
+                });
+            }
+
+            async setItem(key, value) {
+                try {
+                    localStorage.setItem(key, JSON.stringify(value));
+                } catch (e) {
+                    console.error('Storage error:', e);
+                }
+            }
+
+            async getItem(key, defaultValue = null) {
+                try {
+                    const item = localStorage.getItem(key);
+                    return item !== null ? JSON.parse(item) : defaultValue;
+                } catch (e) {
+                    console.error('Storage retrieval error:', e);
+                    return defaultValue;
+                }
+            }
+
+            async removeItem(key) {
+                try {
+                    localStorage.removeItem(key);
+                } catch (e) {
+                    console.error('Storage removal error:', e);
+                }
+            }
+
+            async getAllKeys() {
+                try {
+                    return Object.keys(localStorage);
+                } catch (e) {
+                    return [];
+                }
+            }
+        }
+
+        const storage = new DataStorage();
+
+        /* ============================================================
+           TOAST MANAGER
+        ============================================================ */
+        class ToastManager {
+            constructor() {
+                this.container = document.getElementById('toastContainer');
+                this.toasts = [];
+            }
+
+            show(message, type = 'info', duration = 4000) {
+                const toast = this.createToast(message, type);
+                this.container.appendChild(toast);
+                this.toasts.push(toast);
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => this.remove(toast), duration);
+                return toast;
+            }
+
+            createToast(message, type) {
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                toast.setAttribute('role', 'alert');
+                const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+
+                const iconSpan = document.createElement('span');
+                iconSpan.className = 'toast-icon';
+                iconSpan.textContent = icons[type] || icons.info;
+
+                const msgSpan = document.createElement('span');
+                msgSpan.className = 'toast-message';
+                msgSpan.textContent = message;
+
+                const closeBtn = document.createElement('button');
+                closeBtn.className = 'toast-close';
+                closeBtn.textContent = '×';
+                closeBtn.setAttribute('aria-label', 'Close');
+                closeBtn.onclick = () => this.remove(toast);
+
+                toast.append(iconSpan, msgSpan, closeBtn);
+                return toast;
+            }
+
+            remove(toast) {
+                if (toast && toast.parentElement) {
+                    toast.classList.add('fade-out');
+                    setTimeout(() => {
+                        if (toast.parentElement) toast.parentElement.removeChild(toast);
+                        this.toasts = this.toasts.filter(t => t !== toast);
+                    }, 300);
+                }
+            }
+        }
+
+        const toastManager = new ToastManager();
+
+        /* ============================================================
+           MODAL MANAGER
+           FIX: The root cause of the aria-hidden warning was that
+           _dismiss() set aria-hidden="true" on the overlay WHILE a
+           button inside it still held focus. Assistive technology
+           correctly rejects this.
+
+           Two-part fix applied here:
+             1. _show() records document.activeElement as _previousFocus
+                so we always know where to return focus.
+             2. _dismiss() calls _previousFocus.focus() (or falls back
+                to document.body) BEFORE touching aria-hidden / inert,
+                guaranteeing focus has already left the modal by the
+                time it becomes hidden from the a11y tree.
+             3. The overlay also uses the `inert` attribute (as the
+                browser warning itself recommended) alongside aria-hidden
+                for belt-and-suspenders: `inert` prevents any focus from
+                entering the overlay while it is closed, even if CSS or
+                JS somehow leaves a focusable child reachable.
+        ============================================================ */
+        const modal = (() => {
+            let _overlay, _dialog, _iconEl, _titleEl, _bodyEl,
+                _inputGroup, _inputEl, _inputErrEl, _actionsEl;
+            let _resolve = null;
+            let _previousFocus = null;   // ← NEW: tracks caller's focused element
+
+            function _init() {
+                _overlay = document.getElementById('customModalOverlay');
+                _dialog = _overlay.querySelector('.modal-dialog');
+                _iconEl = document.getElementById('modal-icon-el');
+                _titleEl = document.getElementById('modal-title-el');
+                _bodyEl = document.getElementById('modal-body-el');
+                _inputGroup = document.getElementById('modal-input-group');
+                _inputEl = document.getElementById('modal-inp');
+                _inputErrEl = document.getElementById('modal-inp-err');
+                _actionsEl = document.getElementById('modal-actions');
+
+                // Start in a truly hidden state
+                _overlay.setAttribute('aria-hidden', 'true');
+                _overlay.setAttribute('inert', '');
+
+                // Dismiss on backdrop click
+                _overlay.addEventListener('click', e => {
+                    if (e.target === _overlay) _dismiss(null);
+                });
+
+                // Dismiss on Escape
+                document.addEventListener('keydown', e => {
+                    if (e.key === 'Escape' && _overlay.classList.contains('active')) {
+                        _dismiss(null);
+                    }
+                });
+            }
+
+            function _show(icon, title, body, showInput, inputOpts = {}) {
+                // ── FIX step 1: capture where focus currently lives ──
+                _previousFocus = document.activeElement;
+
+                _iconEl.textContent = icon || '';
+                _titleEl.textContent = title;
+                _bodyEl.textContent = body;
+                _actionsEl.innerHTML = '';
+                _inputErrEl.textContent = '';
+
+                if (showInput) {
+                    _inputGroup.style.display = 'block';
+                    _inputEl.type = inputOpts.type || 'text';
+                    _inputEl.value = inputOpts.defaultValue != null ? inputOpts.defaultValue : '';
+                    _inputEl.placeholder = inputOpts.placeholder || '';
+                    _inputEl.classList.remove('inp-error');
+                } else {
+                    _inputGroup.style.display = 'none';
+                }
+
+                // Remove inert BEFORE making visible so focus can enter
+                _overlay.removeAttribute('inert');
+                _overlay.setAttribute('aria-hidden', 'false');
+                _overlay.classList.add('active');
+
+                // Move focus inside after the CSS transition settles
+                setTimeout(() => {
+                    if (showInput) {
+                        _inputEl.focus();
+                        _inputEl.select();
+                    } else {
+                        const primaryBtn = _actionsEl.querySelector(
+                            '.btn-danger, .btn-primary, .btn-amber, .btn-teal'
+                        );
+                        (primaryBtn || _actionsEl.querySelector('button'))?.focus();
+                    }
+                }, 60);
+            }
+
+            function _dismiss(value) {
+                // ── FIX step 2: move focus OUT of the modal FIRST ──
+                // This must happen before aria-hidden / inert are applied,
+                // otherwise the browser logs the "aria-hidden on focused
+                // element" warning we are fixing.
+                if (_previousFocus && typeof _previousFocus.focus === 'function') {
+                    _previousFocus.focus();
+                } else {
+                    document.body.focus();
+                }
+                _previousFocus = null;
+
+                // Now it is safe to hide the overlay from the a11y tree
+                _overlay.classList.remove('active');
+                _overlay.setAttribute('aria-hidden', 'true');
+                _overlay.setAttribute('inert', '');   // belt-and-suspenders
+
+                if (_resolve) {
+                    const r = _resolve;
+                    _resolve = null;
+                    r(value);
+                }
+            }
+
+            function _addBtn(text, cls, handler) {
+                const btn = document.createElement('button');
+                btn.className = cls;
+                btn.textContent = text;
+                btn.onclick = handler;
+                _actionsEl.appendChild(btn);
+                return btn;
+            }
+
+            function _shake(el) {
+                el.classList.remove('shake');
+                void el.offsetWidth;
+                el.classList.add('shake');
+            }
+
+            function confirm(title, body, {
+                icon = '❓',
+                confirmText = 'Confirm',
+                confirmClass = 'btn-primary',
+                cancelText = 'Cancel'
+            } = {}) {
+                return new Promise(resolve => {
+                    _resolve = resolve;
+                    _show(icon, title, body, false);
+                    _addBtn(cancelText, 'btn-ghost', () => _dismiss(false));
+                    _addBtn(confirmText, confirmClass, () => _dismiss(true));
+                });
+            }
+
+            function input(title, body, {
+                icon = '✏️',
+                defaultValue = '',
+                placeholder = '',
+                type = 'text',
+                okText = 'OK',
+                cancelText = 'Cancel',
+                nullable = false,
+                validate = null
+            } = {}) {
+                return new Promise(resolve => {
+                    _resolve = resolve;
+                    _show(icon, title, body, true, { defaultValue, placeholder, type });
+
+                    _addBtn(cancelText, 'btn-ghost', () => _dismiss(null));
+
+                    const okBtn = _addBtn(okText, 'btn-primary', () => {
+                        const val = _inputEl.value.trim();
+                        _inputErrEl.textContent = '';
+                        _inputEl.classList.remove('inp-error');
+
+                        if (!nullable && val === '') {
+                            _inputErrEl.textContent = 'Please enter a value.';
+                            _inputEl.classList.add('inp-error');
+                            _shake(_inputEl);
+                            return;
+                        }
+
+                        if (validate && val !== '') {
+                            const err = validate(val);
+                            if (err) {
+                                _inputErrEl.textContent = err;
+                                _inputEl.classList.add('inp-error');
+                                _shake(_inputEl);
+                                return;
+                            }
+                        }
+
+                        _dismiss(val);
+                    });
+
+                    _inputEl.addEventListener('keydown', function onKey(e) {
+                        if (e.key === 'Enter') { e.preventDefault(); okBtn.click(); }
+                        if (e.key === 'Escape') { _inputEl.removeEventListener('keydown', onKey); }
+                    });
+                });
+            }
+
+            function verify(title, body, verifyText, { icon = '⚠️' } = {}) {
+                return new Promise(resolve => {
+                    _resolve = resolve;
+                    _show(icon, title, body, true, {
+                        placeholder: `Type "${verifyText}" to confirm`,
+                        type: 'text'
+                    });
+
+                    _addBtn('Cancel', 'btn-ghost', () => _dismiss(false));
+
+                    const confirmBtn = _addBtn('Delete All', 'btn-danger', () => {
+                        if (_inputEl.value === verifyText) {
+                            _dismiss(true);
+                        } else {
+                            _inputErrEl.textContent = `Please type exactly "${verifyText}".`;
+                            _inputEl.classList.add('inp-error');
+                            _shake(_inputEl);
+                        }
+                    });
+
+                    _inputEl.addEventListener('keydown', function onKey(e) {
+                        if (e.key === 'Enter') { e.preventDefault(); confirmBtn.click(); }
+                        if (e.key === 'Escape') { _inputEl.removeEventListener('keydown', onKey); }
+                    });
+                });
+            }
+
+            return { init: _init, confirm, input, verify };
+        })();
+
+        /* ============================================================
+           ACCESSIBILITY
+        ============================================================ */
+        function announceToScreenReader(message, priority = 'polite') {
+            const el = priority === 'assertive'
+                ? document.getElementById('alerts')
+                : document.getElementById('announcements');
+            el.textContent = message;
+            setTimeout(() => { el.textContent = ''; }, 1000);
+        }
+
+        /* ============================================================
+           UTILITIES
+        ============================================================ */
+        function sanitizeInput(value, type = 'number') {
+            if (type === 'number') {
+                const n = parseInt(value, 10);
+                return isNaN(n) ? 0 : Math.max(0, n);
+            }
+            return String(value).trim();
+        }
+
+        /* ============================================================
+           DATA MANAGER
+        ============================================================ */
+        class DataManager {
+            constructor(type, storagePrefix) {
+                this.type = type;
+                this.prefix = storagePrefix;
+            }
+
+            getStorageKey(date, suffix = '') {
+                return `${this.prefix}_${date}${suffix}`;
+            }
+
+            async getDataForDate(date) {
+                return await storage.getItem(this.getStorageKey(date), 0);
+            }
+
+            async saveDataForDate(date, data) {
+                await storage.setItem(this.getStorageKey(date), data);
+            }
+
+            async getHistoryForDate(date) {
+                return await storage.getItem(this.getStorageKey(date, 'History'), []);
+            }
+
+            async saveHistoryForDate(date, h) {
+                await storage.setItem(this.getStorageKey(date, 'History'), h);
+            }
+
+            async clearHistoryForDate(date) {
+                await storage.removeItem(this.getStorageKey(date, 'History'));
+            }
+
+            createHistoryEntry(data, date) {
+                const sel = new Date(date + 'T00:00:00');
+                const now = new Date();
+                const entryDate = new Date(
+                    sel.getFullYear(), sel.getMonth(), sel.getDate(),
+                    now.getHours(), now.getMinutes(), now.getSeconds()
+                );
+                return {
+                    ...data,
+                    timestamp: entryDate.toLocaleString('en-IN', {
+                        year: 'numeric', month: '2-digit', day: '2-digit',
+                        hour: '2-digit', minute: '2-digit', second: '2-digit',
+                        hour12: true, timeZone: 'Asia/Kolkata'
+                    }),
+                    id: Date.now(),
+                    date: date
+                };
+            }
+        }
+
+        const waterManager = new DataManager('water', 'waterIntake');
+        const peeManager = new DataManager('pee', 'peeCount');
+
+        /* ============================================================
+           STATE + DOM CACHE
+        ============================================================ */
+        const dateInput = document.getElementById('dateInput');
+
+        function getLocalDateString(d = new Date()) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const dy = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${dy}`;
+        }
+
+        const today = getLocalDateString();
+        dateInput.value = today;
+        dateInput.max = today;
+
+        let currentDate = today;
+        let totalIntake = 0;
+        let totalPeeCount = 0;
+        let dailyGoal = 4000;
+
+        let DOM = {};
+
+        function initDOMCache() {
+            DOM = {
+                intakeVal: document.getElementById('intake-val'),
+                goalVal: document.getElementById('goal-val'),
+                remainingVal: document.getElementById('remaining-val'),
+                progressBar: document.getElementById('progressBar'),
+                progressBarWrap: document.querySelector('.progress-bar-container'),
+                progressDesc: document.getElementById('progress-description'),
+                peeDisplay: document.getElementById('pee-display'),
+                intakeDisplay: document.getElementById('intake-display'),
+                goalDisplay: document.getElementById('goal-display'),
+                remainingDisplay: document.getElementById('remaining-display'),
+                historyList: document.getElementById('history-list'),
+                peeHistoryList: document.getElementById('pee-history-list'),
+                waterInput: document.getElementById('waterInput'),
+                peeInput: document.getElementById('peeQuantityInput'),
+                goalInput: document.getElementById('goalInput'),
+            };
+        }
+
+        /* ============================================================
+           DISPLAY UPDATES
+        ============================================================ */
+        function updateDisplays() {
+            const remaining = Math.max(dailyGoal - totalIntake, 0);
+
+            DOM.intakeVal.textContent = totalIntake;
+            DOM.goalVal.textContent = dailyGoal;
+            DOM.remainingVal.textContent = remaining;
+
+            DOM.intakeDisplay.textContent = `Total Water Intake: ${totalIntake} ml`;
+            DOM.goalDisplay.textContent = `Goal: ${dailyGoal} ml (${(dailyGoal / 1000).toFixed(1)} Liters)`;
+            DOM.remainingDisplay.textContent = `Remaining: ${remaining} ml`;
+            DOM.peeDisplay.textContent = `Total Pee Count: ${totalPeeCount} times`;
+
+            updateProgressBar();
+        }
+
+        function updateProgressBar() {
+            const pct = Math.min((totalIntake / dailyGoal) * 100, 100);
+            const rounded = Math.round(pct);
+
+            DOM.progressBar.style.width = `${pct}%`;
+            DOM.progressBarWrap.setAttribute('aria-valuenow', rounded);
+
+            if (pct >= 100) {
+                DOM.progressBar.classList.add('complete');
+                DOM.progressDesc.textContent = `${rounded}% — Goal Achieved! 🎉`;
+                DOM.progressDesc.style.color = 'var(--teal)';
+            } else {
+                DOM.progressBar.classList.remove('complete');
+                DOM.progressDesc.textContent = `${rounded}% Complete`;
+                DOM.progressDesc.style.color = 'var(--cyan)';
+            }
+        }
+
+        /* ============================================================
+           HISTORY RENDERING
+        ============================================================ */
+        function renderEmptyState(list) {
+            list.innerHTML = '';
+            const div = document.createElement('div');
+            div.className = 'empty-state';
+            div.textContent = 'No entries yet for this date.';
+            list.appendChild(div);
+        }
+
+        async function loadHistoryForDate(date) {
+            const history = await waterManager.getHistoryForDate(date);
+            const list = DOM.historyList;
+            list.innerHTML = '';
+            if (!history.length) { renderEmptyState(list); return; }
+
+            const frag = document.createDocumentFragment();
+            history.forEach((entry, i) =>
+                frag.appendChild(createHistoryListItem(entry, i, history.length))
+            );
+            list.appendChild(frag);
+        }
+
+        function createHistoryListItem(entry, index, total) {
+            const li = document.createElement('li');
+            li.setAttribute('role', 'listitem');
+            const num = total - index;
+
+            const span = document.createElement('span');
+            span.className = 'history-text';
+
+            const strong = document.createElement('strong');
+            strong.textContent = `${num}. ${entry.amount} ml`;
+
+            const sep = document.createElement('span');
+            sep.className = 'history-sep';
+            sep.setAttribute('aria-hidden', 'true');
+            sep.textContent = ' · ';
+
+            const time = document.createElement('span');
+            time.textContent = entry.timestamp;
+
+            span.append(strong, sep, time);
+
+            const btns = document.createElement('div');
+            btns.className = 'history-buttons';
+            btns.setAttribute('role', 'group');
+            btns.setAttribute('aria-label', `Actions for entry ${num}`);
+
+            const editBtn = document.createElement('button');
+            editBtn.className = 'btn-sm btn-edit';
+            editBtn.textContent = '✏️ Edit';
+            editBtn.setAttribute('aria-label', `Edit entry ${num}`);
+            editBtn.onclick = () => editEntry(index);
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'btn-sm btn-del';
+            delBtn.textContent = '🗑️ Del';
+            delBtn.setAttribute('aria-label', `Delete entry ${num}`);
+            delBtn.onclick = () => deleteEntry(index);
+
+            btns.append(editBtn, delBtn);
+            li.append(span, btns);
+            return li;
+        }
+
+        async function loadPeeHistoryForDate(date) {
+            const history = await peeManager.getHistoryForDate(date);
+            const list = DOM.peeHistoryList;
+            list.innerHTML = '';
+            if (!history.length) { renderEmptyState(list); return; }
+
+            const frag = document.createDocumentFragment();
+            history.forEach((entry, i) =>
+                frag.appendChild(createPeeHistoryListItem(entry, i, history.length))
+            );
+            list.appendChild(frag);
+        }
+
+        function createPeeHistoryListItem(entry, index, total) {
+            const li = document.createElement('li');
+            li.setAttribute('role', 'listitem');
+            const num = total - index;
+            const qty = entry.quantity ? ` (${entry.quantity} ml)` : '';
+
+            const span = document.createElement('span');
+            span.className = 'history-text';
+
+            const strong = document.createElement('strong');
+            strong.textContent = `${num}. Peed${qty}`;
+
+            const sep = document.createElement('span');
+            sep.className = 'history-sep';
+            sep.setAttribute('aria-hidden', 'true');
+            sep.textContent = ' · ';
+
+            const time = document.createElement('span');
+            time.textContent = entry.timestamp;
+
+            span.append(strong, sep, time);
+
+            const btns = document.createElement('div');
+            btns.className = 'history-buttons';
+            btns.setAttribute('role', 'group');
+            btns.setAttribute('aria-label', `Actions for pee entry ${num}`);
+
+            const editBtn = document.createElement('button');
+            editBtn.className = 'btn-sm btn-edit';
+            editBtn.textContent = '✏️ Edit';
+            editBtn.setAttribute('aria-label', `Edit pee entry ${num}`);
+            editBtn.onclick = () => editPeeEntry(index);
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'btn-sm btn-del';
+            delBtn.textContent = '🗑️ Del';
+            delBtn.setAttribute('aria-label', `Delete pee entry ${num}`);
+            delBtn.onclick = () => deletePeeEntry(index);
+
+            btns.append(editBtn, delBtn);
+            li.append(span, btns);
+            return li;
+        }
+
+        /* ============================================================
+           LOAD DATA
+        ============================================================ */
+        async function loadDataForDate(date) {
+            try {
+                dailyGoal = await getStoredGoalForDate(date);
+                totalIntake = await waterManager.getDataForDate(date);
+                totalPeeCount = await peeManager.getDataForDate(date);
+                updateDisplays();
+                await loadHistoryForDate(date);
+                await loadPeeHistoryForDate(date);
+            } catch (err) {
+                console.error('Error loading data:', err);
+                toastManager.show('Error loading data for the selected date', 'error');
+            }
+        }
+
+        async function getStoredGoalForDate(date) {
+            const stored = await storage.getItem(`dailyGoal_${date}`);
+            return stored ? parseInt(stored, 10) : 4000;
+        }
+
+        async function saveGoalForDate(date, goal) {
+            await storage.setItem(`dailyGoal_${date}`, goal);
+        }
+
+        /* ============================================================
+           GOAL SETTING
+        ============================================================ */
+        async function setCustomGoal() {
+            const goalUnit = document.querySelector('input[name="goalUnit"]:checked').value;
+            let goalAmount = parseFloat(DOM.goalInput.value) || 0;
+
+            if (goalAmount <= 0) {
+                toastManager.show('Please enter a valid positive number for the goal.', 'warning');
+                announceToScreenReader('Invalid goal amount entered', 'assertive');
+                return;
+            }
+
+            if (goalUnit === 'l') goalAmount *= 1000;
+            if (goalAmount < 100) { toastManager.show('Goal must be at least 100ml (0.1L).', 'warning'); return; }
+            if (goalAmount > 10000) { toastManager.show('Goal cannot exceed 10000ml (10L).', 'warning'); return; }
+
+            const displayUnit = goalUnit === 'l' ? 'L' : 'ml';
+            const displayAmount = goalUnit === 'l' ? (goalAmount / 1000).toFixed(1) : Math.round(goalAmount);
+
+            const ok = await modal.confirm(
+                '🎯 Set Custom Goal',
+                `Set daily goal to ${displayAmount} ${displayUnit} for ${currentDate}?`,
+                { icon: '🎯', confirmText: 'Set Goal', confirmClass: 'btn-amber' }
+            );
+            if (!ok) return;
+
+            dailyGoal = Math.round(goalAmount);
+            await saveGoalForDate(currentDate, dailyGoal);
+            updateDisplays();
+            DOM.goalInput.value = '';
+
+            const checkbox = document.getElementById('manualGoalCheckbox');
+            checkbox.checked = false;
+            const goalContainer = document.getElementById('goalInputContainer');
+            goalContainer.classList.remove('show');
+            goalContainer.setAttribute('aria-expanded', 'false');
+
+            toastManager.show(`Goal set to ${displayAmount} ${displayUnit}`, 'success');
+            announceToScreenReader(`Daily goal updated to ${displayAmount} ${displayUnit}`);
+        }
+
+        /* ============================================================
+           WATER ACTIONS
+        ============================================================ */
+        async function addWater() {
+            const amount = sanitizeInput(DOM.waterInput.value, 'number');
+            if (amount <= 0) {
+                toastManager.show('Please enter a valid positive number for water intake.', 'warning');
+                announceToScreenReader('Invalid water amount entered', 'assertive');
+                DOM.waterInput.focus();
+                return;
+            }
+
+            const ok = await modal.confirm(
+                '💧 Log Water Intake',
+                `Add ${amount} ml to your intake for ${currentDate}?`,
+                { icon: '💧', confirmText: 'Add Water', confirmClass: 'btn-primary' }
+            );
+            if (!ok) return;
+
+            try {
+                totalIntake += amount;
+                await waterManager.saveDataForDate(currentDate, totalIntake);
+                updateDisplays();
+                await addToHistory(amount);
+                DOM.waterInput.value = '';
+                DOM.waterInput.focus();
+                toastManager.show(`Added ${amount} ml to your water intake`, 'success');
+                announceToScreenReader(`Added ${amount} milliliters. Total: ${totalIntake} ml.`);
+            } catch (err) {
+                console.error('Error adding water:', err);
+                toastManager.show('Error adding water intake', 'error');
+            }
+        }
+
+        async function addToHistory(amount) {
+            const history = await waterManager.getHistoryForDate(currentDate);
+            history.unshift(waterManager.createHistoryEntry({ amount }, currentDate));
+            await waterManager.saveHistoryForDate(currentDate, history);
+            await loadHistoryForDate(currentDate);
+        }
+
+        async function resetData() {
+            const wh = await waterManager.getHistoryForDate(currentDate);
+            if (!totalIntake && !wh.length) {
+                toastManager.show(`No water data to reset for ${currentDate}`, 'info');
+                return;
+            }
+
+            const ok = await modal.confirm(
+                '↺ Reset Water Data',
+                `Reset all water data for ${currentDate}?\n\n• ${wh.length} entries (${totalIntake} ml)\n\nThis action cannot be undone.`,
+                { icon: '⚠️', confirmText: 'Reset', confirmClass: 'btn-danger', cancelText: 'Keep' }
+            );
+            if (!ok) return;
+
+            try {
+                totalIntake = 0;
+                await waterManager.saveDataForDate(currentDate, 0);
+                await waterManager.clearHistoryForDate(currentDate);
+                updateDisplays();
+                await loadHistoryForDate(currentDate);
+                toastManager.show(`Water data for ${currentDate} reset`, 'success');
+                announceToScreenReader(`Water data for ${currentDate} has been reset`);
+            } catch (err) {
+                console.error('Error resetting data:', err);
+                toastManager.show('Error resetting data', 'error');
+            }
+        }
+
+        async function editEntry(index) {
+            try {
+                const history = await waterManager.getHistoryForDate(currentDate);
+                const entry = history[index];
+                if (!entry) return;
+
+                const result = await modal.input(
+                    '✏️ Edit Water Entry',
+                    `Current: ${entry.amount} ml\nLogged at: ${entry.timestamp}\n\nEnter new amount (ml):`,
+                    {
+                        icon: '✏️',
+                        defaultValue: String(entry.amount),
+                        type: 'number',
+                        placeholder: 'Amount in ml',
+                        okText: 'Update',
+                        nullable: false,
+                        validate: v => {
+                            const n = parseInt(v, 10);
+                            if (isNaN(n) || n <= 0) return 'Please enter a valid positive number.';
+                            return null;
+                        }
+                    }
+                );
+                if (result === null) return;
+
+                const amount = parseInt(result, 10);
+                if (amount === entry.amount) {
+                    toastManager.show('No changes made.', 'info');
+                    return;
+                }
+
+                totalIntake = totalIntake - entry.amount + amount;
+                history[index].amount = amount;
+                await waterManager.saveDataForDate(currentDate, totalIntake);
+                await waterManager.saveHistoryForDate(currentDate, history);
+                updateDisplays();
+                await loadHistoryForDate(currentDate);
+                toastManager.show(`Entry updated to ${amount} ml`, 'success');
+                announceToScreenReader(`Entry updated to ${amount} milliliters`);
+            } catch (err) {
+                console.error('Error editing entry:', err);
+                toastManager.show('Error editing entry', 'error');
+            }
+        }
+
+        async function deleteEntry(index) {
+            try {
+                const history = await waterManager.getHistoryForDate(currentDate);
+                const entry = history[index];
+                if (!entry) return;
+
+                const ok = await modal.confirm(
+                    '🗑️ Delete Entry',
+                    `Delete ${entry.amount} ml entry?\nLogged at: ${entry.timestamp}\n\nThis cannot be undone.`,
+                    { icon: '🗑️', confirmText: 'Delete', confirmClass: 'btn-danger', cancelText: 'Keep' }
+                );
+                if (!ok) return;
+
+                totalIntake -= entry.amount;
+                history.splice(index, 1);
+                await waterManager.saveDataForDate(currentDate, totalIntake);
+                await waterManager.saveHistoryForDate(currentDate, history);
+                updateDisplays();
+                await loadHistoryForDate(currentDate);
+                toastManager.show(`Deleted ${entry.amount} ml entry`, 'success');
+                announceToScreenReader(`Entry of ${entry.amount} ml deleted`);
+            } catch (err) {
+                console.error('Error deleting entry:', err);
+                toastManager.show('Error deleting entry', 'error');
+            }
+        }
+
+        /* ============================================================
+           PEE ACTIONS
+        ============================================================ */
+        async function addPeeCount() {
+            const quantity = sanitizeInput(DOM.peeInput.value, 'number') || null;
+            const qtyMsg = quantity ? ` with ${quantity} ml` : '';
+
+            const ok = await modal.confirm(
+                '🚽 Log Pee Count',
+                `Add a pee count${qtyMsg} for ${currentDate}?`,
+                { icon: '🚽', confirmText: 'Add', confirmClass: 'btn-teal' }
+            );
+            if (!ok) return;
+
+            try {
+                totalPeeCount++;
+                await peeManager.saveDataForDate(currentDate, totalPeeCount);
+                updateDisplays();
+                await addToPeeHistory(quantity);
+                DOM.peeInput.value = '';
+                DOM.peeInput.focus();
+                toastManager.show(`Pee count added${qtyMsg}`, 'success');
+                announceToScreenReader(`Pee count added${qtyMsg}. Total: ${totalPeeCount}.`);
+            } catch (err) {
+                console.error('Error adding pee count:', err);
+                toastManager.show('Error adding pee count', 'error');
+            }
+        }
+
+        async function addToPeeHistory(quantity = null) {
+            const history = await peeManager.getHistoryForDate(currentDate);
+            history.unshift(peeManager.createHistoryEntry({ quantity }, currentDate));
+            await peeManager.saveHistoryForDate(currentDate, history);
+            await loadPeeHistoryForDate(currentDate);
+        }
+
+        async function resetPeeCount() {
+            const ph = await peeManager.getHistoryForDate(currentDate);
+            if (!totalPeeCount && !ph.length) {
+                toastManager.show(`No pee data to reset for ${currentDate}`, 'info');
+                return;
+            }
+
+            const ok = await modal.confirm(
+                '↺ Reset Pee Count',
+                `Reset all pee data for ${currentDate}?\n\n• ${ph.length} entries (${totalPeeCount} times)\n\nThis action cannot be undone.`,
+                { icon: '⚠️', confirmText: 'Reset', confirmClass: 'btn-danger', cancelText: 'Keep' }
+            );
+            if (!ok) return;
+
+            try {
+                totalPeeCount = 0;
+                await peeManager.saveDataForDate(currentDate, 0);
+                await peeManager.clearHistoryForDate(currentDate);
+                updateDisplays();
+                await loadPeeHistoryForDate(currentDate);
+                toastManager.show(`Pee data for ${currentDate} reset`, 'success');
+                announceToScreenReader(`Pee count data for ${currentDate} reset`);
+            } catch (err) {
+                console.error('Error resetting pee count:', err);
+                toastManager.show('Error resetting pee count', 'error');
+            }
+        }
+
+        async function editPeeEntry(index) {
+            try {
+                const history = await peeManager.getHistoryForDate(currentDate);
+                const entry = history[index];
+                if (!entry) return;
+
+                const currentQty = entry.quantity != null ? String(entry.quantity) : '';
+                const result = await modal.input(
+                    '✏️ Edit Pee Entry',
+                    `Current quantity: ${entry.quantity ? entry.quantity + ' ml' : 'Not specified'}\nLogged at: ${entry.timestamp}\n\nNew quantity (ml) or leave empty:`,
+                    {
+                        icon: '🚽',
+                        defaultValue: currentQty,
+                        type: 'number',
+                        placeholder: 'Optional quantity in ml',
+                        okText: 'Update',
+                        nullable: true,
+                        validate: v => {
+                            if (v === '') return null;
+                            const n = parseInt(v, 10);
+                            if (isNaN(n) || n <= 0) return 'Enter a valid positive number or leave empty.';
+                            return null;
+                        }
+                    }
+                );
+                if (result === null) return;
+
+                const qty = result === '' ? null : parseInt(result, 10);
+                history[index].quantity = qty;
+                await peeManager.saveHistoryForDate(currentDate, history);
+                await loadPeeHistoryForDate(currentDate);
+                toastManager.show(
+                    `Pee entry updated to ${qty != null ? qty + ' ml' : 'unspecified'}`,
+                    'success'
+                );
+                announceToScreenReader('Pee entry quantity updated');
+            } catch (err) {
+                console.error('Error editing pee entry:', err);
+                toastManager.show('Error editing pee entry', 'error');
+            }
+        }
+
+        async function deletePeeEntry(index) {
+            try {
+                const history = await peeManager.getHistoryForDate(currentDate);
+                const entry = history[index];
+                if (!entry) return;
+
+                const qty = entry.quantity ? `${entry.quantity} ml` : 'unspecified';
+                const ok = await modal.confirm(
+                    '🗑️ Delete Pee Entry',
+                    `Delete pee entry (${qty})?\nLogged at: ${entry.timestamp}\n\nThis cannot be undone.`,
+                    { icon: '🗑️', confirmText: 'Delete', confirmClass: 'btn-danger', cancelText: 'Keep' }
+                );
+                if (!ok) return;
+
+                totalPeeCount = Math.max(0, totalPeeCount - 1);
+                history.splice(index, 1);
+                await peeManager.saveDataForDate(currentDate, totalPeeCount);
+                await peeManager.saveHistoryForDate(currentDate, history);
+                updateDisplays();
+                await loadPeeHistoryForDate(currentDate);
+                toastManager.show('Pee entry deleted', 'success');
+                announceToScreenReader(`Pee entry deleted. Total: ${totalPeeCount}.`);
+            } catch (err) {
+                console.error('Error deleting pee entry:', err);
+                toastManager.show('Error deleting pee entry', 'error');
+            }
+        }
+
+        /* ============================================================
+           DELETE ALL DATA
+        ============================================================ */
+        async function deleteAllData() {
+            try {
+                const allKeys = await storage.getAllKeys();
+                const waterKeys = allKeys.filter(k => k.startsWith('waterIntake_'));
+                const peeKeys = allKeys.filter(k => k.startsWith('peeCount_'));
+                const goalKeys = allKeys.filter(k => k.startsWith('dailyGoal_'));
+                const totalKeys = waterKeys.length + peeKeys.length + goalKeys.length;
+
+                if (!totalKeys) {
+                    toastManager.show('No data found to delete', 'info');
+                    return;
+                }
+
+                const extractDate = (key, prefix) =>
+                    key.replace(prefix, '').replace('History', '');
+
+                const affectedDates = [...new Set([
+                    ...waterKeys.map(k => extractDate(k, 'waterIntake_')),
+                    ...peeKeys.map(k => extractDate(k, 'peeCount_')),
+                    ...goalKeys.map(k => k.replace('dailyGoal_', ''))
+                ])].filter(Boolean).sort();
+
+                const step1 = await modal.confirm(
+                    '⚠️ Delete All Data',
+                    `This will permanently delete ALL data from ${affectedDates.length} date(s):\n${affectedDates.join(', ')}\n\nThis action CANNOT be undone!`,
+                    { icon: '⚠️', confirmText: 'Continue →', confirmClass: 'btn-danger' }
+                );
+                if (!step1) return;
+
+                const step2 = await modal.verify(
+                    '🚨 Final Confirmation',
+                    'Type "DELETE ALL" below to permanently erase all your data.',
+                    'DELETE ALL',
+                    { icon: '🚨' }
+                );
+                if (!step2) {
+                    toastManager.show('Deletion cancelled.', 'info');
+                    return;
+                }
+
+                for (const k of [...waterKeys, ...peeKeys, ...goalKeys]) {
+                    await storage.removeItem(k);
+                }
+
+                totalIntake = 0; totalPeeCount = 0; dailyGoal = 4000;
+                updateDisplays();
+                await loadHistoryForDate(currentDate);
+                await loadPeeHistoryForDate(currentDate);
+                dateInput.value = today;
+
+                toastManager.show(`All data deleted from ${affectedDates.length} date(s).`, 'success');
+                announceToScreenReader('All tracking data permanently deleted.');
+            } catch (err) {
+                console.error('Error deleting all data:', err);
+                toastManager.show('Error deleting data', 'error');
+            }
+        }
+
+        /* ============================================================
+           EVENT LISTENERS
+        ============================================================ */
+        dateInput.addEventListener('change', async function () {
+            if (this.value > today) {
+                toastManager.show('Future dates are not allowed.', 'warning');
+                this.value = currentDate;
+                return;
+            }
+            currentDate = this.value;
+            await loadDataForDate(currentDate);
+            announceToScreenReader(`Date changed to ${currentDate}.`);
+        });
+
+        document.getElementById('manualGoalCheckbox').addEventListener('change', function () {
+            const body = document.getElementById('goalInputContainer');
+            body.classList.toggle('show', this.checked);
+            body.setAttribute('aria-expanded', String(this.checked));
+            announceToScreenReader(this.checked ? 'Goal settings opened' : 'Goal settings closed');
+        });
+
+        document.querySelectorAll('input[name="goalUnit"]').forEach(r => {
+            r.addEventListener('change', function () {
+                DOM.goalInput.placeholder = this.value === 'ml' ? 'Enter goal in ml' : 'Enter goal in liters';
+                announceToScreenReader(`Goal unit changed to ${this.value === 'ml' ? 'milliliters' : 'liters'}`);
+            });
+        });
+
+        ['waterInput', 'peeQuantityInput'].forEach(id => {
+            document.getElementById(id).addEventListener('input', function () {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+        });
+
+        document.getElementById('goalInput').addEventListener('input', function () {
+            this.value = this.value.replace(/[^0-9.]/g, '');
+        });
+
+        document.getElementById('waterInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') { e.preventDefault(); addWater(); }
+        });
+        document.getElementById('peeQuantityInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') { e.preventDefault(); addPeeCount(); }
+        });
+        document.getElementById('goalInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') { e.preventDefault(); setCustomGoal(); }
+        });
+
+        /* ============================================================
+           INIT
+        ============================================================ */
+        window.addEventListener('load', async () => {
+            initDOMCache();
+            modal.init();
+            try {
+                await storage.initIndexedDB();
+            } catch (e) {
+                console.log('Using localStorage fallback');
+            }
+            await loadDataForDate(currentDate);
+        });
+    </script>
+</body>
+
+</html>
